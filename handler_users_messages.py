@@ -1,5 +1,6 @@
 import requests
 import json_parcer
+import handler_NASA_API
 from datetime import date
 
 
@@ -16,9 +17,20 @@ def response_handler(response):
 
 
 def get_messages():
-    response = requests.get("http://hackathons.masterschool.com:3030/team/getMessages/DONT_LOOK_UP")
+    response = requests.get("http://hackathons.masterschool.com:3030/team/getMessages/NASA")
     json_data = response.json()
-    return json_data
+    messages = []
+    for message in json_data:
+        for number, data in message.items():
+            for item in data:
+                if 'NASA' in item['text']:
+                    receive_date = item['receivedAt'].split('T')[0]
+                    messages.append({
+                        'number': number,
+                        'command': item['text'],
+                        'date': receive_date
+                    })
+    return messages
 
 
 def check_user_receive_message(user_number, date):
@@ -41,18 +53,15 @@ def handle_response_data():
     messages = get_messages()
     today = date.today().isoformat()
     for message in messages:
-        for number, data in message.items():
-            for item in data:
-                receive_date = item['receivedAt'].split('T')[0]
-                if receive_date == today and not check_user_receive_message(number, today):
-                    return response_handler(send_message(number))
-                elif item['text'] == "SUBSCRIBE DONT_LOOK_UP/n/n":
-                    return response_handler(send_message(number))
-        return "Message has already been sent today"
+        if message['date'] == today and not check_user_receive_message(message['number'], today):
+            return response_handler(commands_handler(message['command'], message['number']))
+        # else:
+        #     return response_handler(commands_handler(message['command'], message['number']))
+    return "Message has already been sent today"
 
 
 def send_message(user_number):
-    message_data = json_parcer.load_data(NASA_DATA)
+    message_data = handler_NASA_API.get_nasa_data()
     title = message_data['title']
     explanation = message_data['description'].split('.')
     image = message_data['image']
@@ -65,5 +74,25 @@ def send_message(user_number):
     response = requests.post('http://hackathons.masterschool.com:3030/sms/send', json=data) 
     return response.status_code
 
+
+def commands_handler(command, number):
+    """
+    Main function to run the program and interact with the user.
+
+    Returns:
+    None
+    """
+    menu_functionality = {
+            'SUBSCRIBE NASA': send_message
+    }
+    if command in menu_functionality:
+            return menu_functionality[command](number)
+    
+
+
+
+
+
+
 print(handle_response_data())
-# print(get_messages())
+#print(get_messages())
