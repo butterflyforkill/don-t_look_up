@@ -1,6 +1,5 @@
-# module get the data (write option) (update once a day)
+# module get the data
 import requests
-import json_parcer
 
 def get_nasa_data(date):
     url = f"https://api.nasa.gov/planetary/apod?api_key=WQc73ODNIrkpck8Di2SwNldZfLi2YeAgEEr6qgNC&start_date={date}&end_date={date}"
