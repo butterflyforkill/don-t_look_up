@@ -1,4 +1,4 @@
-module get the dat# handle users answers
+# handle users answers
 # subscribe of the user
 # unsubscribe of the user
 # sending the SMS to the user
@@ -6,7 +6,6 @@ module get the dat# handle users answers
 import requests
 from datetime import date
 from dateutil import parser
-
 
 APP_NAME = "DONT_LOOK_UP"
 
@@ -16,7 +15,6 @@ def response_handler(response):
         print("message has been sent")
     else:
         print("message hasn't been sent")
-
 
 
 def get_messages():
@@ -38,13 +36,14 @@ def handle_response_data():
 
 
 def send_message(user_number):
-    message = "Hello, here is the news for today + "# call the method to get data from the json of NASA API
+    message = "Hello, here is the news for today + "  # call the method to get data from the json of NASA API
     data = {
         "phoneNumber": user_number,
         "message": message,
         "sender": APP_NAME
     }
-    response = requests.post('http://hackathons.masterschool.com:3030/sms/send', json=data) 
+    response = requests.post('http://hackathons.masterschool.com:3030/sms/send', json=data)
     return response.status_code
 
-handle_response_data()a (write option) (update once a day)
+
+handle_response_data()
