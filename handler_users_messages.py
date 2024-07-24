@@ -18,10 +18,7 @@ def response_handler(response):
     Returns:
     - A string indicating whether the message has been successfully sent or not.
     """
-    if response == 200:
-        return "message has been sent"
-    else:
-        return "message hasn't been sent"
+    return "message has been sent" if response == 200 else "message hasn't been sent"
 
 
 def get_messages():
@@ -59,18 +56,17 @@ def check_user_receive_message(user_number, date):
     - True if the user has already received a message on the given date, otherwise False.
     """
     users_numbers = json_parcer.load_data(USER_RECEIVE_MESSAGE)
-    if users_numbers.get('date') != date:
-        users_numbers = {'date': date, 'numbers': [user_number]}
-        json_parcer.write_file(USER_RECEIVE_MESSAGE, users_numbers)
-        return False
-    elif user_number in users_numbers.get('numbers', []):
-        return True
+    
+    if date in users_numbers:
+        if user_number in users_numbers[date]:
+            return True  # Message has already been sent to this user on this date
+        else:
+            users_numbers[date].append(user_number)
     else:
-        numbers = users_numbers['numbers']
-        numbers.append(user_number)
-        users_numbers['numbers'] = numbers
-        json_parcer.write_file(USER_RECEIVE_MESSAGE, users_numbers)
-        return False
+        users_numbers[date] = [user_number]
+    
+    json_parcer.write_file(USER_RECEIVE_MESSAGE, users_numbers)
+    return False  # Message has not been sent to this user on this date
 
 
 def handle_response_data():
@@ -82,12 +78,17 @@ def handle_response_data():
     """
     messages = get_messages()
     today = date.today().isoformat()
+    message_sent_today = False
     for message in messages:
-        if message['date'] != today and not check_user_receive_message(message['number'], today):
-            return commands_handler(message['command'], message['number'], today)
-        else:
-            return response_handler(commands_handler(message['command'], message['number'], today))
-    return "Message has already been sent today"
+        checked_user = check_user_receive_message(message['number'], today)
+        checked_date = message['date'] == today
+        if not checked_user or checked_date:
+            print(commands_handler(message['command'], message['number'], today))
+            message_sent_today = True 
+    if message_sent_today:
+        return "Messages processed and sent successfully"
+    else:
+        return "No new messages to process or messages already sent today"
 
 
 def send_message(user_number, nasa_data_date):
@@ -160,10 +161,11 @@ def commands_handler(command, number, today):
             availble_commands = response_handler(send_message_availble_commands(number))
             send_msg = response_handler(menu_functionality[command](number, today))
             return f"first_msg: {availble_commands}, second_msg: {send_msg}"
+            # return "the message was sent"
         # else:
         #     return response_handler(menu_functionality[command](number, today))
 
 # testing purpose
-# print(handle_response_data())
+print(handle_response_data())
 # print(get_messages())
 # print(send_message_availble_commands('4917664388873'))
