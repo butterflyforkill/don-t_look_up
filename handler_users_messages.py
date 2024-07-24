@@ -5,7 +5,6 @@ from datetime import date, time
 
 
 APP_NAME = "DONT_LOOK_UP"
-NASA_DATA = "NASA_data.json"
 USER_RECEIVE_MESSAGE = "receive_msg.json"
 
 
@@ -87,7 +86,7 @@ def handle_response_data():
         if message['date'] == today and not check_user_receive_message(message['number'], today):
             return commands_handler(message['command'], message['number'], today)
         # else:
-        #     return response_handler(commands_handler(message['command'], message['number']))
+        #     return response_handler(commands_handler(message['command'], message['number'], today))
     return "Message has already been sent today"
 
 
@@ -139,6 +138,7 @@ def send_message_availble_commands(user_number):
     response = requests.post('http://hackathons.masterschool.com:3030/sms/send', json=data) 
     return response.status_code
 
+
 def commands_handler(command, number, today):
     """
     Processes the commands received and triggers the appropriate action.
@@ -152,7 +152,7 @@ def commands_handler(command, number, today):
     - A message indicating the status of command handling.
     """
     menu_functionality = {
-            'SUBSCRIBE NASA': send_message,
+            'SUBSCRIBE NASA': send_message, 
             'NASA POD': send_message
     }
     if command in menu_functionality:
@@ -161,8 +161,8 @@ def commands_handler(command, number, today):
             send_msg = response_handler(menu_functionality[command](number, today))
             return f"first_msg: {availble_commands}, second_msg: {send_msg}"
         else:
-            command.split()
             return response_handler(menu_functionality[command](number, today))
+    return "Message has already been sent today"
 
 
 print(handle_response_data())
