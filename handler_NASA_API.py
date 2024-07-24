@@ -39,6 +39,7 @@ def process_data(response_text):
 
 
 def get_nasa_data(date=None):
+    #test
     url = APOD_URL
     if date:
         url += f"&date={date}"
@@ -52,6 +53,10 @@ def get_nasa_data(date=None):
         'description': data_json['explanation'],
         'image': data_json['url']
     }
+
+
+
+
 
 
 # testing function arena
