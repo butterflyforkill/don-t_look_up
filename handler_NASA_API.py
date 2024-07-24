@@ -6,9 +6,10 @@ APOD_URL = 'https://api.nasa.gov/planetary/apod?api_key=' + API_KEY
 
 
 def save_to_json(data, filename='nasa_data.json'):
-    """Save the given data to a JSON file."""
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
+        
+        
 
 
 def fetch_data(url):
