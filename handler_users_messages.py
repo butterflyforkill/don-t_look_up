@@ -83,7 +83,8 @@ def handle_response_data():
         checked_user = check_user_receive_message(message['number'], today)
         checked_date = message['date'] == today
         if not checked_user or checked_date:
-            print(commands_handler(message['command'], message['number'], today))
+            # print(commands_handler(message['command'], message['number'], today))
+            commands_handler(message['command'], message['number'], today)
             message_sent_today = True 
     if message_sent_today:
         return "Messages processed and sent successfully"
