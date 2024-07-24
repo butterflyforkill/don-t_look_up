@@ -4,7 +4,7 @@ import handler_NASA_API
 from datetime import date, time
 
 
-APP_NAME = "NASA NEWS"
+APP_NAME = "NASA"
 USER_RECEIVE_MESSAGE = "receive_msg.json"
 
 
@@ -152,17 +152,18 @@ def commands_handler(command, number, today):
     - A message indicating the status of command handling.
     """
     menu_functionality = {
-            'SUBSCRIBE NASA': send_message, 
-            'NASA POD': send_message
+            'SUBSCRIBE NASA': send_message
+            # 'NASA POD': send_message
     }
     if command in menu_functionality:
         if command == 'SUBSCRIBE NASA':
             availble_commands = response_handler(send_message_availble_commands(number))
             send_msg = response_handler(menu_functionality[command](number, today))
             return f"first_msg: {availble_commands}, second_msg: {send_msg}"
-        else:
-            return response_handler(menu_functionality[command](number, today))
+        # else:
+        #     return response_handler(menu_functionality[command](number, today))
 
 # testing purpose
 # print(handle_response_data())
-# #print(get_messages())
+# print(get_messages())
+# print(send_message_availble_commands('4917664388873'))
