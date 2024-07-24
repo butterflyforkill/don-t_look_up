@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Don't Look Up - NASA News</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Don't Look Up - NASA News</h1>
+            <p>Stay updated with the latest news from NASA directly on your phone!</p>
+        </header>
+        
+        <section id="how-it-works">
+            <h2>How It Works</h2>
+            <p>This project allows users to subscribe to receive daily news updates from NASA. You can also request the NASA Picture of the Day at a specific time. Just enter your phone number and the command below to get started.</p>
+        </section>
+        
+        <section id="subscribe">
+            <h2>Subscribe for Updates</h2>
+            <form action="/subscribe" method="post">
+                <label for="phone">Phone Number:</label>
+                <input type="text" id="phone" name="phone" required>
+                
+                <label for="command">Command:</label>
+                <input type="text" id="command" name="command" placeholder="e.g., SUBSCRIBE NASA or NASA POD 13" required>
+                
+                <button type="submit">Send</button>
+            </form>
+            <div class="result" id="result"></div>
+        </section>
+        
+        <section id="nasa-photo">
+            <h2>NASA Photo of the Day</h2>
+            <div id="photo-container">
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const form = document.querySelector('form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch('/subscribe', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.text();
+            document.getElementById('result').innerText = result;
+        });
+
+        async function fetchNasaPhoto() {
+            const response = await fetch('/nasa-photo');
+            const data = await response.json();
+            const photoContainer = document.getElementById('photo-container');
+            photoContainer.innerHTML = `
+                <h3>${data.title}</h3>
+                <p>${data.description}</p>
+                <img src="${data.image}" alt="${data.title}">
+            `;
+        }
+        
+        fetchNasaPhoto();
+    </script>
+</body>
+</html>
