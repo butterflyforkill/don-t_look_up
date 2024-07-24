@@ -1,7 +1,10 @@
+import handler_NASA_API
 import requests
 import json_parcer
-import handler_NASA_API
-from datetime import date, time
+import schedule
+import time
+from datetime import date
+from collections import defaultdict
 
 
 APP_NAME = "NASA"
@@ -24,10 +27,12 @@ def response_handler(response):
 def get_messages():
     """
     Retrieves messages from the NASA API endpoint and filters out messages containing 'NASA'.
+    Filters out repeated commands from the same number.
 
     Returns:
     - A list of dictionaries, each containing message details such as number, command, and date.
     """
+    received_commands = defaultdict(list)
     response = requests.get("http://hackathons.masterschool.com:3030/team/getMessages/NASA")
     json_data = response.json()
     messages = []
@@ -36,12 +41,33 @@ def get_messages():
             for item in data:
                 if 'NASA' in item['text']:
                     receive_date = item['receivedAt'].split('T')[0]
-                    messages.append({
-                        'number': number,
-                        'command': item['text'],
-                        'date': receive_date
-                    })
+                    if item['text'] not in received_commands[number]:  # Check for repeated commands
+                        received_commands[number].append(item['text'])
+                        messages.append({
+                            'number': number,
+                            'command': item['text'],
+                            'date': receive_date
+                        })
     return messages
+
+
+def messages_timer():
+    """
+    Schedules the get_messages function to run every hour and returns the messages.
+    """
+    # Schedule the job to run get_messages every hour
+    schedule.every().hour.do(get_messages)
+    
+    # Allows the first execution of get_messages
+    messages = get_messages()
+    
+    # Run the scheduled jobs
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+    
+        # Return the messages
+        return messages
 
 
 def check_user_receive_message(user_number, date):
@@ -76,15 +102,15 @@ def handle_response_data():
     Returns:
     - A message indicating the status of message processing.
     """
-    messages = get_messages()
+    messages = messages_timer()
     today = date.today().isoformat()
     message_sent_today = False
     for message in messages:
         checked_user = check_user_receive_message(message['number'], today)
         checked_date = message['date'] == today
         if not checked_user or checked_date:
-            # print(commands_handler(message['command'], message['number'], today))
-            commands_handler(message['command'], message['number'], today)
+            print(commands_handler(message['command'], message['number'], today))
+            # commands_handler(message['command'], message['number'], today)
             message_sent_today = True 
     if message_sent_today:
         return "Messages processed and sent successfully"
@@ -141,6 +167,29 @@ def send_message_availble_commands(user_number):
     return response.status_code
 
 
+def send_in_user_time(user_time, user_number, nasa_data_date):
+    """
+    Schedule a message to be sent to the user at the specified time using the provided user number and NASA data date.
+
+    Args:
+    - user_time: The time at which the message should be sent (format: "HH:MM").
+    - user_number: The user's phone number or contact information.
+    - nasa_data_date: The relevant date for NASA data being sent in the message.
+
+    This function schedules the message to be sent at the specified user_time using the user_number and the nasa_data_date provided.
+
+    Example:
+    send_in_user_time("13:00", "+1234567890", "2024-07-04")
+    This example schedules a message to be sent at 13:00 with the NASA data for July 4th, 2024 to the phone number +1234567890.
+    """
+    schedule.every().day.at(user_time).do(send_message(user_number, nasa_data_date))
+
+    # Continuously run the scheduler
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+
 def commands_handler(command, number, today):
     """
     Processes the commands received and triggers the appropriate action.
@@ -154,17 +203,19 @@ def commands_handler(command, number, today):
     - A message indicating the status of command handling.
     """
     menu_functionality = {
-            'SUBSCRIBE NASA': send_message
-            # 'NASA POD': send_message
+            'SUBSCRIBE NASA': send_message,
+            'NASA POD': send_message
     }
     if command in menu_functionality:
         if command == 'SUBSCRIBE NASA':
-            availble_commands = response_handler(send_message_availble_commands(number))
-            send_msg = response_handler(menu_functionality[command](number, today))
-            return f"first_msg: {availble_commands}, second_msg: {send_msg}"
-            # return "the message was sent"
-        # else:
-        #     return response_handler(menu_functionality[command](number, today))
+            # availble_commands = response_handler(send_message_availble_commands(number))
+            # send_msg = response_handler(menu_functionality[command](number, today))
+            # return f"first_msg: {availble_commands}, second_msg: {send_msg}"
+            return "the message was sent"
+        else:
+            user_time = command.split()[2] + ':00'
+            send_in_user_time(user_time, number, today)
+            return "the message was sent"
 
 # testing purpose
 print(handle_response_data())

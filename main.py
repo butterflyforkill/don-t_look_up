@@ -1,7 +1,8 @@
-# running the program 
+import time
 
 def main():
-    pass
+    while True:
+        pass
 
 
 if __name__ == "__main__":
