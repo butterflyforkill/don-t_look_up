@@ -2,6 +2,7 @@ import requests
 import json_parcer
 import handler_NASA_API
 from datetime import date, time
+import WA_api
 
 
 APP_NAME = "NASA"
@@ -45,6 +46,19 @@ def get_messages():
                         'date': receive_date
                     })
     return messages
+
+def check_WA():
+    """""
+    retrieves True if WA is in the sent text
+    """""
+    response = requests.get("http://hackathons.masterschool.com:3030/team/getMessages/NASA")
+    json_data = response.json()
+    for message in json_data:
+        for number, data in message.items():
+            for item in data:
+                if 'WA' in item['text']:
+                    return True
+
 
 
 def check_user_receive_message(user_number, date):
@@ -111,6 +125,10 @@ def send_message(user_number, nasa_data_date):
         "message": message,
         "sender": APP_NAME
     }
+    WA_cheking = check_WA() #if check_WA is true it will send the picture trough whatsapp too
+    if WA_cheking:
+        prefix_number = "+" + user_number
+        WA_api.send_WA(prefix_number, title, image)
     response = requests.post('http://hackathons.masterschool.com:3030/sms/send', json=data) 
     return response.status_code
 
@@ -129,7 +147,9 @@ def send_message_availble_commands(user_number):
     message += f"Hello dear user of the app Don't Look Up. " 
     message += f"If you want to receive news from us in the different time of the day. Please send us a message with words:"
     message += f" NASA POD and the time u want to receive news.\n"
-    message += f"For example: NASA POD 13"  
+    message += f"For example: NASA POD 13\n"
+    message += f"If you want to receive it to Whatsapp too, send a message with words:"
+    message += f"NASA POD 13 WA\n"
     data = {
         "phoneNumber": user_number,
         "message": message,
@@ -153,6 +173,7 @@ def commands_handler(command, number, today):
     """
     menu_functionality = {
             'SUBSCRIBE NASA': send_message
+
             # 'NASA POD': send_message
     }
     if command in menu_functionality:
@@ -167,3 +188,5 @@ def commands_handler(command, number, today):
 # print(handle_response_data())
 # print(get_messages())
 # print(send_message_availble_commands('4917664388873'))
+
+
