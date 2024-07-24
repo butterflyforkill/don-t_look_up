@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background: url("./_static/PacmanCrawfordNew1024.jpg") no-repeat center center fixed;
+    background: url("./PacmanCrawfordNew1024.jpg") no-repeat center center fixed;
     background-size: cover;
     margin: 0;
     padding: 0;
