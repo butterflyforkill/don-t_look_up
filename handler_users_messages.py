@@ -4,7 +4,7 @@ import handler_NASA_API
 from datetime import date, time
 
 
-APP_NAME = "DONT_LOOK_UP"
+APP_NAME = "NASA NEWS"
 USER_RECEIVE_MESSAGE = "receive_msg.json"
 
 
@@ -83,10 +83,10 @@ def handle_response_data():
     messages = get_messages()
     today = date.today().isoformat()
     for message in messages:
-        if message['date'] == today and not check_user_receive_message(message['number'], today):
+        if message['date'] != today and not check_user_receive_message(message['number'], today):
             return commands_handler(message['command'], message['number'], today)
-        # else:
-        #     return response_handler(commands_handler(message['command'], message['number'], today))
+        else:
+            return response_handler(commands_handler(message['command'], message['number'], today))
     return "Message has already been sent today"
 
 
@@ -162,8 +162,7 @@ def commands_handler(command, number, today):
             return f"first_msg: {availble_commands}, second_msg: {send_msg}"
         else:
             return response_handler(menu_functionality[command](number, today))
-    return "Message has already been sent today"
 
-
-print(handle_response_data())
-#print(get_messages())
+# testing purpose
+# print(handle_response_data())
+# #print(get_messages())

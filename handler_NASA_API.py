@@ -20,11 +20,11 @@ def get_nasa_data(date=None):
     }
 
 
-# testing function arena
-date_user_input = input("Please enter a date in YYYY-MM-DD format (or leave blank for today's picture): ")
-url = APOD_URL
-if date_user_input:
-    url += f"&date={date_user_input}"
+# # testing function arena
+# date_user_input = input("Please enter a date in YYYY-MM-DD format (or leave blank for today's picture): ")
+# url = APOD_URL
+# if date_user_input:
+#     url += f"&date={date_user_input}"
 
-data = get_nasa_data(date_user_input)
-print(data)
+# data = get_nasa_data(date_user_input)
+# print(data)
