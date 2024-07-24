@@ -5,7 +5,8 @@ API_KEY = 'yDf0pzhehgEcpalmhkRbaeNeo6CeWUeWSfB4QWRf'
 APOD_URL = 'https://api.nasa.gov/planetary/apod?api_key=' + API_KEY
 
 
-def save_to_json(data, filename):
+def save_to_json(data, filename='nasa_data.json'):
+    """Save the given data to a JSON file."""
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
 
@@ -36,13 +37,28 @@ def process_data(response_text):
     return processed_data
 
 
-if __name__ == '__main__':
-    date_user_input = input("Please enter a date in YYYY-MM-DD format (or leave blank for today's picture): ")
+def get_nasa_data(date=None):
     url = APOD_URL
-    if date_user_input:
-        url += f"&date={date_user_input}"
+    if date:
+        url += f"&date={date}"
     
-    data = fetch_data(url)
-    filename = 'apod_data.json'
-    save_to_json(data, filename)
-    print(f"Data saved to {filename}")
+    response = requests.get(url)
+    response.raise_for_status()
+    data_json = response.json()
+    
+    return {
+        'title': data_json['title'],
+        'description': data_json['explanation'],
+        'image': data_json['url']
+    }
+
+
+# testing function arena
+date_user_input = input("Please enter a date in YYYY-MM-DD format (or leave blank for today's picture): ")
+url = APOD_URL
+
+url += f"&date={date_user_input}"
+
+data = get_nasa_data(date_user_input)
+save_to_json(data, filename='nasa_data.json')
+print("Data saved to nasa_data.json")
