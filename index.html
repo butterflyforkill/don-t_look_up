@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Don't Look Up - NASA News</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
     <div class="container">
@@ -35,13 +35,11 @@
         <section id="nasa-photo">
             <h2>NASA Photo of the Day</h2>
             <div id="photo-container">
-                <!-- NASA photo and details will be displayed here -->
             </div>
         </section>
     </div>
 
     <script>
-        // Optional JavaScript to handle form submission and display result
         const form = document.querySelector('form');
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -54,7 +52,6 @@
             document.getElementById('result').innerText = result;
         });
 
-        // Fetch NASA Photo of the Day
         async function fetchNasaPhoto() {
             const response = await fetch('/nasa-photo');
             const data = await response.json();
@@ -66,7 +63,6 @@
             `;
         }
         
-        // Load NASA Photo of the Day on page load
         fetchNasaPhoto();
     </script>
 </body>
