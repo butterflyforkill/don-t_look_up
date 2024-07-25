@@ -118,7 +118,7 @@ def handle_response_data():
         return "No new messages to process or messages already sent today"
 
 
-def send_message(user_number, nasa_data_date):
+def send_message(user_number):
     """
     Sends a message with NASA news to the user's phone number.
 
@@ -129,7 +129,7 @@ def send_message(user_number, nasa_data_date):
     Returns:
     - The status code of the message sending operation.
     """
-    message_data = handler_NASA_API.get_nasa_data(nasa_data_date)
+    message_data = handler_NASA_API.get_nasa_data()
     title = message_data['title']
     explanation = message_data['description'].split('.')
     image = message_data['image']
@@ -143,7 +143,7 @@ def send_message(user_number, nasa_data_date):
     return response.status_code
 
 
-def send_message_availble_commands(user_number):
+def send_message_available_commands(user_number):
     """
     Sends a message with available commands to the user's phone number.
 
@@ -167,7 +167,7 @@ def send_message_availble_commands(user_number):
     return response.status_code
 
 
-def send_in_user_time(user_time, user_number, nasa_data_date):
+def send_message_at_requested_time(user_time, user_number, nasa_data_date):
     """
     Schedule a message to be sent to the user at the specified time using the provided user number and NASA data date.
 
@@ -182,7 +182,8 @@ def send_in_user_time(user_time, user_number, nasa_data_date):
     send_in_user_time("13:00", "+1234567890", "2024-07-04")
     This example schedules a message to be sent at 13:00 with the NASA data for July 4th, 2024 to the phone number +1234567890.
     """
-    schedule.every().day.at(user_time).do(send_message(user_number, nasa_data_date))
+    print(f"Message sent to {user_number} with NASA data for {nasa_data_date}")  # Added print statement for logging
+    schedule.every().day.at(user_time).do(send_message(user_number))
 
     # Continuously run the scheduler
     while True:
@@ -190,7 +191,7 @@ def send_in_user_time(user_time, user_number, nasa_data_date):
         time.sleep(1)
 
 
-def commands_handler(command, number, today):
+def commands_handler(command, phone_number, current_date):
     """
     Processes the commands received and triggers the appropriate action.
 
@@ -202,22 +203,24 @@ def commands_handler(command, number, today):
     Returns:
     - A message indicating the status of command handling.
     """
-    menu_functionality = {
-            'SUBSCRIBE NASA': send_message,
-            'NASA POD': send_message
-    }
-    if command in menu_functionality:
-        if command == 'SUBSCRIBE NASA':
-            # availble_commands = response_handler(send_message_availble_commands(number))
-            # send_msg = response_handler(menu_functionality[command](number, today))
-            # return f"first_msg: {availble_commands}, second_msg: {send_msg}"
-            return "the message was sent"
-        else:
-            user_time = command.split()[2] + ':00'
-            send_in_user_time(user_time, number, today)
-            return "the message was sent"
+    if command == 'SUBSCRIBE NASA':
+        available_commands_response = response_handler(send_message_available_commands(phone_number))
+        send_message_response = response_handler(send_message(phone_number))
+        return f"Available Commands: {available_commands_response}, Subscription Message: {send_message_response}"
+    else:
+        try:
+            user_requested_time = command.split()[2] + ':00'  # Extracting the requested time from the command
+            print(user_requested_time)  # For debugging purposes
+            send_message_at_requested_time(user_requested_time, phone_number, current_date)  # Trigger action at the requested time
+            return "Message scheduled successfully"
+        except IndexError:
+            return "Invalid command format: Missing time information"
+        except Exception as e:
+            return f"Error processing command: {str(e)}"
 
 # testing purpose
-print(handle_response_data())
+#print(handle_response_data())
 # print(get_messages())
 # print(send_message_availble_commands('4917664388873'))
+# commands_handler('NASA POD 02', 4917664388873, "2024-07-25")
+# commands_handler('SUBSCRIBE NASA', 4917664388873, "2024-07-25")
