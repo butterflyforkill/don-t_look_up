@@ -218,9 +218,3 @@ def commands_handler(command, phone_number, current_date):
         except Exception as e:
             return f"Error processing command: {str(e)}"
 
-# testing purpose
-#print(handle_response_data())
-# print(get_messages())
-# print(send_message_availble_commands('4917664388873'))
-# commands_handler('NASA POD 02', 4917664388873, "2024-07-25")
-# commands_handler('SUBSCRIBE NASA', 4917664388873, "2024-07-25")
