@@ -1,4 +1,5 @@
 # DON'T LOOK UP - app for delivering news to your phone through sms
+<img width="1187" alt="Screenshot 2024-07-25 at 03 17 38" src="https://github.com/user-attachments/assets/3d593e51-2830-43d6-8385-1b70b9142f8c">
 
 ## Description
 
